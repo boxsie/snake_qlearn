@@ -25,6 +25,7 @@ class SnakeGame:
         self._apple = Apple(self.get_new_apple_pos())
 
         self._apple_angle = 0
+        self._apple_distance = 0
         self._tail_end_angle = 0
         self._up_status = 0
         self._right_status = 0
@@ -112,6 +113,11 @@ class SnakeGame:
 
         self._tail_end_angle = self._snake.tail_end_angle() / 180
 
+        self._apple_distance = math.sqrt(
+            ((self._apple.position[0] - x_pos) ** 2) +
+            ((self._apple.position[1] - y_pos) ** 2)
+        )
+
         self.build_state()
         return False
 
@@ -131,13 +137,8 @@ class SnakeGame:
 
         apple_rads = math.atan2(self._apple.position[1] - y_pos, self._apple.position[0] - x_pos)
 
-        dist_to_apple = math.sqrt(
-            ((self._apple.position[0] - x_pos) ** 2) +
-            ((self._apple.position[1] - y_pos) ** 2)
-        )
-
-        x_end = line_start[0] + math.cos(apple_rads) * (dist_to_apple * self._tile_size)
-        y_end = line_start[1] + math.sin(apple_rads) * (dist_to_apple * self._tile_size)
+        x_end = line_start[0] + math.cos(apple_rads) * (self._apple_distance * self._tile_size)
+        y_end = line_start[1] + math.sin(apple_rads) * (self._apple_distance * self._tile_size)
 
         pygame.draw.line(self._display, (254, 254, 0), line_start, (x_end, y_end), 1)
 
@@ -202,7 +203,7 @@ class SnakeGame:
             return -100.0
         if self._apple_eaten:
             self._apple_eaten = False
-            return 100.0
+            return 200.0
 
         dist_to_apple = math.sqrt(
             ((self._apple.position[0] - self._snake.position[0]) ** 2) +
@@ -210,7 +211,7 @@ class SnakeGame:
         )
 
         return -(dist_to_apple / self._tile_count) * 0.1
-        # return -0.1
+        # return -1
 
     def handle_input(self, action):
         self._snake.set_velocity(Direction(action))
