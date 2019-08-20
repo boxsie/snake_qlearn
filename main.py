@@ -21,7 +21,7 @@ if __name__ == "__main__":
     with tf.Session() as sess:
         sess.run(MODEL.var_init)
 
-        GR = GameRunner(sess, MODEL, SNAKE, MEM, max_eps=0.85, min_eps=0.01, decay=0.01, gamma=0.005)
+        GR = GameRunner(sess, MODEL, SNAKE, MEM, max_eps=0.75, min_eps=0.01, decay=0.001, gamma=0.002)
         SAVER = tf.train.Saver()
         CNT = 1
 
