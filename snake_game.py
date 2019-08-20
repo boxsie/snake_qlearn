@@ -33,6 +33,7 @@ class SnakeGame:
 
         self.state_count = len(self.get_state())
         self.action_count = len(Direction)
+        self.score = 0
 
     def get_state(self):
         return (
@@ -50,10 +51,24 @@ class SnakeGame:
             math.floor(random.uniform(0, 1) * self._tile_count)
         )
 
+    def get_surrounding_pos(self):
+        x_pos = self._snake.position[0]
+        y_pos = self._snake.position[1]
+        up_pos = y_pos - 1 if self._walls or y_pos - 1 >= 0 else self._tile_count - 1
+        right_pos = x_pos + 1 if self._walls or x_pos < self._tile_count - 1 else 0
+        down_pos = y_pos + 1 if self._walls or y_pos + 1 < self._tile_count else 0
+        left_pos = x_pos - 1 if self._walls or x_pos - 1 >= 0 else self._tile_count - 1
+
+        return ((x_pos, up_pos), (right_pos, y_pos), (x_pos, down_pos), (left_pos, y_pos))
+
+    def get_surrounding_status(self):
+        return (self._up_status, self._right_status, self._down_status, self._left_status)
+
     def reset(self):
         self._snake.reset()
         self._apple.position = self.get_new_apple_pos()
         self._game_over = False
+        self.score = 0
 
     def update(self):
         self._snake.update()
@@ -88,6 +103,7 @@ class SnakeGame:
         if self._snake.check_for_apple_eat(self._apple.position):
             self._apple.position = self.get_new_apple_pos()
             self._apple_eaten = True
+            self.score += 1
 
         self._apple_angle = (math.atan2(
             self._apple.position[1] - y_pos,
@@ -113,15 +129,34 @@ class SnakeGame:
             (y_pos * self._tile_size) + (self._tile_size * 0.5)
         )
 
+        apple_rads = math.atan2(self._apple.position[1] - y_pos, self._apple.position[0] - x_pos)
+
         dist_to_apple = math.sqrt(
             ((self._apple.position[0] - x_pos) ** 2) +
             ((self._apple.position[1] - y_pos) ** 2)
         )
 
-        x_end = line_start[0] + math.cos(self._apple_angle) * (dist_to_apple * self._tile_size)
-        y_end = line_start[1] + math.sin(self._apple_angle) * (dist_to_apple * self._tile_size)
+        x_end = line_start[0] + math.cos(apple_rads) * (dist_to_apple * self._tile_size)
+        y_end = line_start[1] + math.sin(apple_rads) * (dist_to_apple * self._tile_size)
 
         pygame.draw.line(self._display, (254, 254, 0), line_start, (x_end, y_end), 1)
+
+        surrounding_pos = self.get_surrounding_pos()
+        surrounding_status = self.get_surrounding_status()
+
+        for i, pos in enumerate(surrounding_pos):
+            if surrounding_status[i] == 1: col = (0, 254, 0)
+            elif surrounding_status[i] == -1: col = (254, 0, 0)
+            else: col = (0, 0, 254)
+
+            pygame.draw.rect(
+                self._display,
+                col, (
+                    pos[0] * self._tile_size,
+                    pos[1] * self._tile_size,
+                    self._tile_size,
+                    self._tile_size)
+                )
 
         pygame.display.update()
         self._clock.tick(clock_tick)
@@ -169,7 +204,14 @@ class SnakeGame:
             self._apple_eaten = False
             return 100.0
 
-        return -0.1
+        dist_to_apple = math.sqrt(
+            ((self._apple.position[0] - self._snake.position[0]) ** 2) +
+            ((self._apple.position[1] - self._snake.position[1]) ** 2)
+        )
+
+        return -(dist_to_apple / self._tile_count) * 0.1
+        # return -0.1
 
     def handle_input(self, action):
         self._snake.set_velocity(Direction(action))
+

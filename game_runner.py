@@ -15,14 +15,12 @@ class GameRunner:
         self._eps = self._max_eps
         self._steps = 0
         self._reward_store = []
-        self._max_x_store = []
-
+        self._score_store = []
 
     def run(self, render=True, clock_tick=60):
         self._env.reset()
         state = np.array(self._env.get_state())
         tot_reward = 0
-        max_x = -100
 
         while True:
             if render:
@@ -46,15 +44,19 @@ class GameRunner:
 
             if is_game_complete:
                 self._reward_store.append(tot_reward)
-                self._max_x_store.append(max_x)
+                self._score_store.append(self._env.score)
                 break
 
+    def get_high_score(self):
+        return max(self._score_store)
+
+    def get_average_score(self):
+        return sum(self._score_store) / len(self._score_store)
 
     def _choose_action(self, state):
         if random.random() < self._eps:
             return random.randint(0, self._model.num_actions - 1)
         return np.argmax(self._model.predict_one(state, self._sess))
-
 
     def _replay(self):
         batch = self._memory.sample(self._model.batch_size)

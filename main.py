@@ -12,16 +12,16 @@ if __name__ == "__main__":
     MODEL = Model(num_states=SNAKE.state_count, num_actions=SNAKE.action_count, batch_size=64)
     MEM = Memory(max_memory=5000000)
     SAVE_CNT = 1000
-    RENDER = True
+    RENDER = False
     CLOCK_TICK = 30
-    CLOCK_TICK_MIN = 15
+    CLOCK_TICK_MIN = 1
     CLOCK_TICK_MAX = 240
     MODEL_PATH = 'models'
 
     with tf.Session() as sess:
         sess.run(MODEL.var_init)
 
-        GR = GameRunner(sess, MODEL, SNAKE, MEM, max_eps=0.4, min_eps=0.02, decay=0.01, gamma=0.8)
+        GR = GameRunner(sess, MODEL, SNAKE, MEM, max_eps=0.85, min_eps=0.01, decay=0.01, gamma=0.005)
         SAVER = tf.train.Saver()
         CNT = 1
 
@@ -51,5 +51,5 @@ if __name__ == "__main__":
             if CNT % SAVE_CNT == 0:
                 MODEL.save(sess, MODEL_PATH, CNT)
 
-            print(f'Snakes killed {CNT:,}', end='\r')
+            print(f'Snakes killed:{CNT:,} Highest score:{GR.get_high_score():,} Average score:{GR.get_average_score():,}', end='\r')
             CNT += 1
