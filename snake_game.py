@@ -37,14 +37,30 @@ class SnakeGame:
         self.score = 0
 
     def get_state(self):
-        return (
-            self._apple_angle,
-            self._tail_end_angle,
-            self._up_status,
-            self._right_status,
-            self._down_status,
-            self._left_status
-        )
+        # return (
+        #     self._apple_angle,
+        #     self._tail_end_angle,
+        #     self._up_status,
+        #     self._right_status,
+        #     self._down_status,
+        #     self._left_status
+        # )
+        x_state = []
+        y_state = []
+
+        for x in range(self._tile_count):
+            for y in range(self._tile_count):
+                if self._snake.check_for_intersect((x, y)):
+                    x_state.append(-1)
+                    y_state.append(-1)
+                elif self._apple.position[0] == x and self._apple.position[1] == y:
+                    x_state.append(1)
+                    y_state.append(1)
+                else:
+                    x_state.append(0)
+                    y_state.append(0)
+
+        return (tuple(x_state + y_state))
 
     def get_new_apple_pos(self):
         return (
@@ -200,18 +216,18 @@ class SnakeGame:
 
     def get_reward(self):
         if self._game_over:
-            return -100.0
+            return -10.0
         if self._apple_eaten:
             self._apple_eaten = False
-            return 200.0
+            return 10.0
 
-        dist_to_apple = math.sqrt(
-            ((self._apple.position[0] - self._snake.position[0]) ** 2) +
-            ((self._apple.position[1] - self._snake.position[1]) ** 2)
-        )
+        # dist_to_apple = math.sqrt(
+        #     ((self._apple.position[0] - self._snake.position[0]) ** 2) +
+        #     ((self._apple.position[1] - self._snake.position[1]) ** 2)
+        # )
 
-        return -(dist_to_apple / self._tile_count) * 0.1
-        # return -1
+        # return -(dist_to_apple / self._tile_count) * 0.1
+        return -0.1
 
     def handle_input(self, action):
         self._snake.set_velocity(Direction(action))
