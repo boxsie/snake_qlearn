@@ -10,8 +10,7 @@ class Memory:
         if len(self._samples) > self._max_memory:
             self._samples.pop(0)
 
-    def sample(self, sample_count):
-        if sample_count > len(self._samples):
+    def sample(self, no_samples):
+        if no_samples > len(self._samples):
             return random.sample(self._samples, len(self._samples))
-
-        return random.sample(self._samples, sample_count)
+        return random.sample(self._samples, no_samples)

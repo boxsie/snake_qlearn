@@ -199,10 +199,10 @@ class SnakeGame:
 
     def get_reward(self):
         if self._game_over:
-            return -100.0
+            return -1.0
         if self._apple_eaten:
             self._apple_eaten = False
-            return 100.0
+            return 1.0
 
         dist_to_apple = math.sqrt(
             ((self._apple.position[0] - self._snake.position[0]) ** 2) +
@@ -210,7 +210,7 @@ class SnakeGame:
         )
 
         return -(dist_to_apple / self._tile_count) * 0.1
-        # return -0.1
+        # return -0.05
 
     def handle_input(self, action):
         self._snake.set_velocity(Direction(action))
