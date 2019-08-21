@@ -51,9 +51,12 @@ class Snake:
         elif new_dir == Direction.left:
             self._velocity = (-1, 0)
 
-    def check_for_intersect(self):
+    def check_for_intersect(self, pos=None):
+        if not pos:
+            pos = self.position
+
         for i in self._tail_trail:
-            if i[0] == self.position[0] and i[1] == self.position[1]:
+            if i[0] == pos[0] and i[1] == pos[1]:
                 return True
         return False
 
