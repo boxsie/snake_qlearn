@@ -200,30 +200,18 @@ class SnakeGame:
 
     def get_reward(self):
         if self._game_over:
-<<<<<<< HEAD
             return -1.0
         if self._apple_eaten:
             self._apple_eaten = False
             return 1.0
-=======
-            return -10.0
-        if self._apple_eaten:
-            self._apple_eaten = False
-            return 10.0
->>>>>>> 5cced43fb9692e2d1556f26ec9dc555f5a86057e
 
-        # dist_to_apple = math.sqrt(
-        #     ((self._apple.position[0] - self._snake.position[0]) ** 2) +
-        #     ((self._apple.position[1] - self._snake.position[1]) ** 2)
-        # )
+        dist_to_apple = math.sqrt(
+            ((self._apple.position[0] - self._snake.position[0]) ** 2) +
+            ((self._apple.position[1] - self._snake.position[1]) ** 2)
+        )
 
-<<<<<<< HEAD
         return -(dist_to_apple / self._tile_count) * 0.1
         # return -0.05
-=======
-        # return -(dist_to_apple / self._tile_count) * 0.1
-        return -0.1
->>>>>>> 5cced43fb9692e2d1556f26ec9dc555f5a86057e
 
     def handle_input(self, action):
         self._snake.set_velocity(Direction(action))

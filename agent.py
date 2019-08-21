@@ -15,6 +15,7 @@ class Agent:
         self._clock_tick_min = 5
         self._clock_tick_max = 240
         self._model_path = 'models'
+        self._focus_high_scores = False
 
     def train(self):
         with tf.Session() as sess:
@@ -43,11 +44,19 @@ class Agent:
                             self._clock_tick -= self._clock_tick_min
                             self._clock_tick = self._clock_tick if self._clock_tick >= self._clock_tick_min else self._clock_tick_min
                             print(f'\nNew clock tick: {self._clock_tick}')
+                        elif event.key == pygame.K_r:
+                            self._focus_high_scores = not self._focus_high_scores
 
                 gr_latest = game_runner.update(self._render, self._clock_tick)
 
-                if (gr_latest.game_complete):
-                    game_runner.reset()
-                    i += 1
+                if not self._render and self._focus_high_scores and gr_latest.current_score == gr_latest.highest_score - 1:
+                    self._render = True
 
-                print(f'Epochs:{i + 1:,} | Highest score:{gr_latest.highest_score:,} | Average score:{gr_latest.average_score:,.2f} | Average reward:{gr_latest.average_reward:,.2f} | Current ε:{gr_latest.current_eps:,.5f}  ', end='\r')
+                if gr_latest.game_complete:
+                    i += 1
+                    game_runner.reset()
+
+                    if self._render and self._focus_high_scores:
+                        self._render = False
+
+                print(f'Epochs:{i + 1:,} | Current score:{gr_latest.current_score:,} | Highest score:{gr_latest.highest_score:,} | Average score:{gr_latest.average_score:,.2f} | Average reward:{gr_latest.average_reward:,.2f} | Current ε:{gr_latest.current_eps:,.5f}  ', end='\r')

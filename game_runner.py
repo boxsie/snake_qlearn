@@ -54,7 +54,8 @@ class GameRunner:
             highest_score=max(self._score_store) if self._score_store else 0,
             average_score=sum(self._score_store) / len(self._score_store) if self._score_store else 0,
             average_reward=sum(self._reward_store) / len(self._reward_store) if self._reward_store else 0,
-            current_eps=self._eps
+            current_eps=self._eps,
+            current_score=self._env.score
         )
 
     def _choose_action(self, state):
