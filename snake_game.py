@@ -178,6 +178,15 @@ class SnakeGame:
         down_pos = y_pos + 1 if self._walls or y_pos + 1 < self._tile_count else 0
         left_pos = x_pos - 1 if self._walls or x_pos - 1 >= 0 else self._tile_count - 1
 
+        if up_pos == y_apple and x_pos == x_apple:
+            self._up_status = 1
+        if right_pos == x_apple and y_pos == y_apple:
+            self._right_status = 1
+        if down_pos == y_apple and x_pos == x_apple:
+            self._down_status = 1
+        if left_pos == x_apple and y_pos == y_apple:
+            self._left_status = 1
+
         if self._walls:
             if up_pos < 0: self._up_status = -1
             if right_pos >= self._tile_count: self._right_status = -1
@@ -188,15 +197,6 @@ class SnakeGame:
         self._right_status = -1 if self._snake.check_tail_proximity(Direction.right) else self._right_status
         self._down_status = -1 if self._snake.check_tail_proximity(Direction.down) else self._down_status
         self._left_status = -1 if self._snake.check_tail_proximity(Direction.left) else self._left_status
-
-        if up_pos == y_apple and x_pos == x_apple:
-            self._up_status = 1
-        if right_pos == x_apple and y_pos == y_apple:
-            self._right_status = 1
-        if down_pos == y_apple and x_pos == x_apple:
-            self._down_status = 1
-        if left_pos == x_apple and y_pos == y_apple:
-            self._left_status = 1
 
     def get_reward(self):
         if self._game_over:
