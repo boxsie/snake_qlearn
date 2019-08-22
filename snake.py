@@ -6,16 +6,17 @@ from direction import Direction
 class Snake:
     def __init__(self, pos):
         self.position = pos
+        self.tail_trail = []
         self._start_pos = pos
         self._velocity = (0, 0)
         self._snake_colour = (65, 87, 2)
         self.reset()
 
     def add_to_tail(self, pos):
-        self._tail_trail.append(pos)
+        self.tail_trail.append(pos)
 
-        while len(self._tail_trail) > self._tail_size:
-            self._tail_trail.pop(0)
+        while len(self.tail_trail) > self._tail_size:
+            self.tail_trail.pop(0)
 
     def check_for_apple_eat(self, apple_pos):
         if apple_pos[0] == self.position[0] and apple_pos[1] == self.position[1]:
@@ -27,7 +28,7 @@ class Snake:
         x_pos = self.position[0]
         y_pos = self.position[1]
 
-        for i in self._tail_trail:
+        for i in self.tail_trail:
             if (check_direction == Direction.up and i[1] == y_pos - 1 and i[0] == x_pos) or \
                (check_direction == Direction.right and i[0] == x_pos + 1 and i[1] == y_pos) or \
                (check_direction == Direction.down and i[1] == y_pos + 1 and i[0] == x_pos) or \
@@ -37,8 +38,8 @@ class Snake:
 
     def tail_end_angle(self):
         return math.atan2(
-            self._tail_trail[0][1] - self.position[1],
-            self._tail_trail[0][0] - self.position[0]
+            self.tail_trail[0][1] - self.position[1],
+            self.tail_trail[0][0] - self.position[0]
         ) * 180 / math.pi
 
     def set_velocity(self, new_dir):
@@ -55,7 +56,7 @@ class Snake:
         if not pos:
             pos = self.position
 
-        for i in self._tail_trail:
+        for i in self.tail_trail:
             if i[0] == pos[0] and i[1] == pos[1]:
                 return True
         return False
@@ -64,7 +65,7 @@ class Snake:
         self.position = (self.position[0] + self._velocity[0], self.position[1] + self._velocity[1])
 
     def draw(self, display, tile_size):
-        for i in self._tail_trail:
+        for i in self.tail_trail:
             pygame.draw.rect(
                 display,
                 self._snake_colour, (
@@ -77,6 +78,6 @@ class Snake:
     def reset(self):
         self.position = self._start_pos
         self._tail_size = 5
-        self._tail_trail = []
+        self.tail_trail = []
         self.set_velocity(Direction.right)
         self.add_to_tail(self.position)

@@ -1,3 +1,2 @@
-model_checkpoint_path: "model-1048-228201904.ckpt"
-all_model_checkpoint_paths: "model-563-21820192326.ckpt"
-all_model_checkpoint_paths: "model-1048-228201904.ckpt"
+model_checkpoint_path: "model-285-22820192134.ckpt"
+all_model_checkpoint_paths: "model-285-22820192134.ckpt"
