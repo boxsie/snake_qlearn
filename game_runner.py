@@ -1,7 +1,6 @@
 import random
 import math
 import numpy as np
-from gr_update_item import UpdateItem
 
 class GameRunner:
     def __init__(self, sess, model, env, memory, max_eps, min_eps, decay, gamma):
@@ -59,8 +58,11 @@ class GameRunner:
         )
 
     def _choose_action(self, state):
-        if random.random() < self._eps:
+        rnd = random.random()
+        if rnd < self._eps * 0.1:
             return random.randint(0, self._model.num_actions - 1)
+        if rnd < self._eps * 0.9:
+            return self._env.suggest_action()
         return np.argmax(self._model.predict_one(state, self._sess))
 
     def _replay(self):
@@ -95,3 +97,12 @@ class GameRunner:
             y[i] = current_q
 
         self._model.train_batch(self._sess, x, y)
+
+class UpdateItem:
+    def __init__(self, game_complete, highest_score, average_score, average_reward, current_eps, current_score):
+        self.game_complete = game_complete
+        self.highest_score = highest_score
+        self.average_score = average_score
+        self.average_reward = average_reward
+        self.current_eps = current_eps
+        self.current_score = current_score
