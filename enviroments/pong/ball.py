@@ -8,7 +8,7 @@ class Ball:
         self._position = np.array(start_pos)
         self._velocity = np.array([0, 0])
         self._start_pos = start_pos
-        self._size = size
+        self._size = np.array(size)
         self._min_velocity = min_velocity
         self._max_velocity = max_velocity
         self._friction = friction
@@ -19,7 +19,6 @@ class Ball:
         target_r = math.pi * 2.0 * random.random()
         self._velocity[0] = math.cos(target_r) * self._min_velocity
         self._velocity[1] = math.sin(target_r) * self._min_velocity
-        print(self._velocity)
 
     def update(self, time_step):
         self._velocity = self._velocity * self._friction * time_step
@@ -29,9 +28,8 @@ class Ball:
             self._velocity = (self._velocity / mag) * self._max_velocity
         elif mag < self._min_velocity:
             self._velocity = (self._velocity / mag) * self._min_velocity
-        print(self._velocity)
 
-        self._position = self._position + (self._velocity * time_step)
+        self._position = self._position + self._velocity
 
     def render(self, display):
         pygame.draw.rect(
@@ -43,5 +41,18 @@ class Ball:
                 self._size[1])
         )
 
+    def check_for_intersect(self, rect_tl, rect_br):
+        ball_tl = self._position
+        ball_br = self._position + self._size
+
+        if rect_tl[0] > ball_br[0] or ball_tl[0] > rect_br[0]:
+            return False
+
+        if rect_tl[1] > ball_br[1] or ball_tl[1] > rect_br[1]:
+            return False
+
+        return True
+
     def bounce(self, normal, force):
-        self._velocity = self._velocity - (math.pow(self._velocity * normal, 2) * normal)
+        normal = np.array(normal)
+        self._velocity = self._velocity - 2 * normal * np.dot(normal, self._velocity)

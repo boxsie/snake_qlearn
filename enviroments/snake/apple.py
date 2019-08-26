@@ -5,7 +5,7 @@ class Apple:
         self.position = pos
         self._apple_colour = (65, 87, 2)
 
-    def draw(self, display, tile_size):
+    def render(self, display, offset, tile_size):
         pygame.draw.rect(
             display,
             self._apple_colour, (

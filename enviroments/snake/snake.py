@@ -64,7 +64,7 @@ class Snake:
     def update(self):
         self.position = (self.position[0] + self._velocity[0], self.position[1] + self._velocity[1])
 
-    def render(self, display, tile_size):
+    def render(self, display, offset, tile_size):
         for i in self.tail_trail:
             pygame.draw.rect(
                 display,

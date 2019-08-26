@@ -5,13 +5,8 @@ from agent import Agent
 import pygame
 
 if __name__ == "__main__":
-    #snake_size = (640, 640)
-    #env = SnakeEnviroment(snake_size, tile_count=32, tile_size=20)
-    env = PongEnviroment((640, 640), 110)
-    env.reset()
-    while True:
-        env.update()
-        env.render(60)
-
-    #agent = Agent(env, max_memory=5000000, batch_size=64)
-    #agent.train()
+    snake_size = (640, 640)
+    env = SnakeEnviroment(snake_size, (40, 40), tile_count=32, tile_size=20)
+    #env = PongEnviroment((640, 640), (20, 50), (600, 570), (20, 110))
+    agent = Agent(env, max_memory=5000000, batch_size=64)
+    agent.train()

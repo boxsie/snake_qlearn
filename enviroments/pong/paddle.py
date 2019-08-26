@@ -20,7 +20,7 @@ class Paddle():
         self._velocity_y = 0
 
     def update(self, time_step):
-        if math.isclose(self._velocity_y, 0, abs_tol=self._max_velocity * 0.1):
+        if math.isclose(self._velocity_y, 0, abs_tol=self._force * 0.5):
             self._velocity_y = 0
 
         direction = 0
@@ -32,7 +32,7 @@ class Paddle():
 
         self._velocity_y -= self._friction * time_step * direction
 
-        y_pos = self._position[1] + (self._velocity_y * time_step)
+        y_pos = self._position[1] + self._velocity_y
         y_pos = max(self._top, min(y_pos, self._bottom))
 
         self._position = (self._position[0], y_pos)
@@ -41,8 +41,8 @@ class Paddle():
         pygame.draw.rect(
             display,
             self._colour, (
-                self._offset[0] + self._position[0],
-                self._offset[1] + self._position[1],
+                self._position[0],
+                self._position[1],
                 self._size[0],
                 self._size[1])
             )

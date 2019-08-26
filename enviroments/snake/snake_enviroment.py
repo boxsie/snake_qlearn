@@ -7,11 +7,12 @@ from enviroments.snake.snake import Snake
 from enviroments.snake.apple import Apple
 
 class SnakeEnviroment:
-    def __init__(self, surface_size, tile_count, tile_size, walls=True, observe_tiles=5, observe_dirs=8):
+    def __init__(self, surface_size, offset, tile_count, tile_size, walls=True, observe_tiles=5, observe_dirs=8):
         pygame.init()
         pygame.display.set_caption('QSnake')
 
         self._surface_size = surface_size
+        self._offset = offset
         self._display = pygame.display.set_mode(self._surface_size)
         self._clock = pygame.time.Clock()
         self._walls = walls
@@ -30,13 +31,14 @@ class SnakeEnviroment:
         self._observe_tiles = observe_tiles
         self._observe_dirs = observe_dirs
         self._observations = self.observe_area()
+        self._latest_grid = self.build_grid()
 
         self.state_count = len(self.get_state())
         self.action_count = len(Direction)
         self.score = 0
 
     def get_state(self):
-        return tuple(list(map(lambda x: x[3], self._observations)))
+        return tuple(self._latest_grid)
 
     def get_new_apple_pos(self):
         return (
@@ -71,6 +73,20 @@ class SnakeEnviroment:
 
                 obvs.append((x_end, y_end, target_r, val))
         return obvs
+
+    def build_grid(self):
+        grid = []
+        for x in range(self._tile_count):
+            for y in range(self._tile_count):
+                val = 0
+                for i in self._snake.tail_trail:
+                    if i[0] == x and i[1] == y:
+                        val = -1
+                        break
+                if val == 0 and self._apple.position[0] == x and self._apple.position[1] == y:
+                    val = 1
+                grid.append(val)
+        return grid
 
     def check_position_on_grid(self, pos):
         return pos[0] >= 0 and pos[1] >= 0 and pos[0] < self._tile_count and pos[1] < self._tile_count
@@ -133,6 +149,7 @@ class SnakeEnviroment:
             self.score += 1
 
         self._observations = self.observe_area()
+        self._latest_grid = self.build_grid()
 
         self._apple_angle = (math.atan2(
             self._apple.position[1] - y_pos,
@@ -151,8 +168,8 @@ class SnakeEnviroment:
     def render(self, clock_tick):
         self._display.fill(self._bg_colour)
 
-        self._snake.draw(self._display, self._tile_size)
-        self._apple.draw(self._display, self._tile_size)
+        self._snake.render(self._display, self._offset, self._tile_size)
+        self._apple.render(self._display, self._offset, self._tile_size)
 
         x_pos = self._snake.position[0]
         y_pos = self._snake.position[1]

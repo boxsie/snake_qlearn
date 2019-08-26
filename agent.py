@@ -20,7 +20,7 @@ class Agent:
     def train(self):
         with tf.Session() as sess:
             sess.run(self._model.var_init)
-            game_runner = GameRunner(sess, self._model, self._env, self._memory, max_eps=0.1, min_eps=1e-5, decay=1e-5, gamma=0.85)
+            game_runner = GameRunner(sess, self._model, self._env, self._memory, max_eps=0.1, min_eps=1e-5, decay=1e-5, gamma=0.5)
             game_runner.reset()
             i = 0
 
