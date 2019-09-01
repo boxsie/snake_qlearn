@@ -23,7 +23,7 @@ class SnakeEnviroment:
         self._apple_eaten = False
 
         self._snake = Snake((self._tile_count // 2, self._tile_count // 2))
-        self._apple = Apple(self.get_new_apple_pos())
+        self._apple = Apple(self._get_random_apple_pos())
 
         self._apple_angle = 0
         self._apple_distance = 0
@@ -38,13 +38,28 @@ class SnakeEnviroment:
         self.score = 0
 
     def get_state(self):
-        return tuple(self._latest_grid)
+        return tuple([self._apple_angle, self._apple_distance, self._tail_end_angle] + list(map(lambda x: x[3], self._observations)))
+        #return tuple([self._apple_angle, self._apple_distance, self._tail_end_angle] + list(map(lambda x: x[3], self._observations)) + self._latest_grid)
+        #return tuple(self._latest_grid)
 
     def get_new_apple_pos(self):
-        return (
-            math.floor(random.uniform(0, 1) * self._tile_count),
-            math.floor(random.uniform(0, 1) * self._tile_count)
-        )
+        new_pos = self._get_random_apple_pos()
+
+        while not self._apple_pos_allowed(new_pos):
+            new_pos = self._get_random_apple_pos()
+
+        return new_pos
+
+    def _get_random_apple_pos(self):
+        return (math.floor(random.uniform(0, 1) * self._tile_count), math.floor(random.uniform(0, 1) * self._tile_count))
+
+    def _apple_pos_allowed(self, new_pos):
+        if new_pos[0] != self._apple.position[0] and new_pos[1] != self._apple.position[1]:
+            for i in self._snake.tail_trail:
+                if i[0] == new_pos[0] and i[1] == new_pos[1]:
+                    return False
+            return True
+        return False
 
     def observe_area(self):
         x_pos = self._snake.position[0]
@@ -179,14 +194,31 @@ class SnakeEnviroment:
             (y_pos * self._tile_size) + (self._tile_size * 0.5)
         )
 
-        for o in self._observations:
-            x_end = o[0] * self._tile_size
-            y_end = o[1] * self._tile_size
+        # for o in self._observations:
+        #     x_end = self._offset[0] + (o[0] * self._tile_size)
+        #     y_end = self._offset[1] + (o[1] * self._tile_size)
+        #     val = o[3]
+        #     if val != 0:
+        #         col = (254 - abs(254 * val), 0, 0) if val < 0 else (0, 254 -  abs(254 * val), 0)
+        #         pygame.draw.rect(self._display, col, (x_end, y_end, self._tile_size, self._tile_size))
 
-            val = o[3]
-            if val != 0:
-                col = (254 - abs(254 * val), 0, 0) if val < 0 else (0, 254 -  abs(254 * val), 0)
-                pygame.draw.rect(self._display, col, (x_end, y_end, self._tile_size, self._tile_size))
+        for x in range(self._tile_count):
+            for y in range(self._tile_count):
+                val = self._latest_grid[(x * self._tile_count) + y]
+                if val != 0:
+                    col = (abs(254 * val), 0, 0) if val < 0 else (0, abs(254 * val), 0)
+                    pygame.draw.rect(self._display, col, (
+                        self._offset[0] + (x * self._tile_size),
+                        self._offset[1] + (y * self._tile_size),
+                        self._tile_size,
+                        self._tile_size
+                    ))
+
+        pygame.draw.rect(self._display, (65, 87, 2), (
+            self._offset[0],
+            self._offset[1],
+            self._tile_size * self._tile_count,
+            self._tile_size * self._tile_count), 2)
 
         pygame.display.update()
         self._clock.tick(clock_tick)

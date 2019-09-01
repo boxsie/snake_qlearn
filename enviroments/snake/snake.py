@@ -69,8 +69,8 @@ class Snake:
             pygame.draw.rect(
                 display,
                 self._snake_colour, (
-                    i[0] * tile_size,
-                    i[1] * tile_size,
+                    offset[0] + (i[0] * tile_size),
+                    offset[1] + (i[1] * tile_size),
                     tile_size,
                     tile_size)
                 )

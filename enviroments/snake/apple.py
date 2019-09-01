@@ -9,8 +9,8 @@ class Apple:
         pygame.draw.rect(
             display,
             self._apple_colour, (
-                self.position[0] * tile_size,
-                self.position[1] * tile_size,
+                offset[0] + (self.position[0] * tile_size),
+                offset[1] + (self.position[1] * tile_size),
                 tile_size,
                 tile_size)
             )

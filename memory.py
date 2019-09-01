@@ -1,4 +1,5 @@
 import random
+import pickle
 
 class Memory:
     def __init__(self, max_memory):
@@ -14,3 +15,13 @@ class Memory:
         if no_samples > len(self._samples):
             return random.sample(self._samples, len(self._samples))
         return random.sample(self._samples, no_samples)
+
+    def save(self, path, filename):
+        with open(f'{path}/{filename}.pkl', 'wb') as fp:
+            pickle.dump(self._samples, fp)
+        print(f'\nMemory saved in path: {path}/{filename}.pkl')
+
+    def load(self, path, filename):
+        with open(f'{path}/{filename}.pkl', 'rb') as fp:
+            self._samples = pickle.load(fp)
+        print(f'\nMemory loaded from path: {path}/{filename}.pkl')

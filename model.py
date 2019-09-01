@@ -1,12 +1,12 @@
-import datetime
 import tensorflow as tf
 
 class Model:
-    def __init__(self, num_states, num_actions, batch_size):
+    def __init__(self, num_states, num_actions, batch_size, learning_rate):
         self.var_init = None
         self.num_states = num_states
         self.num_actions = num_actions
         self.batch_size = batch_size
+        self._learning_rate = learning_rate
 
         self._states = None
         self._actions = None
@@ -25,7 +25,7 @@ class Model:
         fc2 = tf.layers.dense(fc1, 50, activation=tf.nn.relu)
         self._logits = tf.layers.dense(fc2, self.num_actions)
         loss = tf.losses.mean_squared_error(self._q_s_a, self._logits)
-        self._optimiser = tf.train.AdamOptimizer().minimize(loss)
+        self._optimiser = tf.train.AdamOptimizer(learning_rate=self._learning_rate).minimize(loss)
         self.var_init = tf.global_variables_initializer()
         self._saver = tf.train.Saver()
 
@@ -38,8 +38,11 @@ class Model:
     def train_batch(self, sess, x_batch, y_batch):
         sess.run(self._optimiser, feed_dict={self._states: x_batch, self._q_s_a: y_batch})
 
-    def save(self, sess, path, cnt):
-        _dt = datetime.datetime.now()
-        save_path = self._saver.save(sess, f'{path}/model-{cnt}-{_dt.day}{_dt.month}{_dt.year}{_dt.hour}{_dt.minute}.ckpt')
-        print('Model saved in path: %s' % save_path)
+    def save(self, sess, path, filename):
+        save_path = self._saver.save(sess, f'{path}/{filename}.ckpt')
+        print(f'\nModel saved in path: {path}/{filename}.ckpt')
+
+    def load(self, sess, path, filename):
+        self._saver.restore(sess, f'{path}/{filename}.ckpt')
+        print(f'\nModel loaded from path: {path}/{filename}.ckpt')
 

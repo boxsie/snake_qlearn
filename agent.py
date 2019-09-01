@@ -1,6 +1,8 @@
 import tensorflow as tf
 import pygame
 
+from os import listdir
+from os.path import isfile, join
 from model import Model
 from memory import Memory
 from game_runner import GameRunner
@@ -8,19 +10,21 @@ from game_runner import GameRunner
 class Agent:
     def __init__(self, env, max_memory, batch_size):
         self._env = env
-        self._model = Model(env.state_count, env.action_count, batch_size=batch_size)
+        self._model = Model(env.state_count, env.action_count, batch_size=batch_size, learning_rate=1e-3)
         self._memory = Memory(max_memory=max_memory)
         self._render = False
         self._clock_tick = 15
         self._clock_tick_min = 5
         self._clock_tick_max = 240
         self._model_path = 'models'
+        self._last_model_idx = self._get_last_save_idx()
+        print(self._last_model_idx)
         self._focus_high_scores = False
 
     def train(self):
         with tf.Session() as sess:
             sess.run(self._model.var_init)
-            game_runner = GameRunner(sess, self._model, self._env, self._memory, max_eps=0.1, min_eps=1e-5, decay=1e-5, gamma=0.5)
+            game_runner = GameRunner(sess, self._model, self._env, self._memory, max_eps=0.1, min_eps=1e-4, decay=1e-7, gamma=0.3)
             game_runner.reset()
             i = 0
 
@@ -33,7 +37,10 @@ class Agent:
                             quit()
                             break
                         elif event.key == pygame.K_s:
-                            self._model.save(sess, self._model_path, i)
+                            self._last_model_idx += 1
+                            self._save_model(sess, self._last_model_idx)
+                        elif event.key == pygame.K_l:
+                            self._load_model(sess, self._last_model_idx)
                         elif event.key == pygame.K_d:
                             self._render = not self._render
                         elif event.key == pygame.K_PAGEUP:
@@ -60,3 +67,23 @@ class Agent:
                         self._render = False
 
                 print(f'Epochs:{i + 1:,} | Current score:{gr_latest.current_score:,} | Highest score:{gr_latest.highest_score:,} | Average score:{gr_latest.average_score:,.2f} | Average reward:{gr_latest.average_reward:,.2f} | Current ε:{gr_latest.current_eps:,.5f}  ', end='\r')
+
+    def _save_model(self, sess, model_name):
+        self._model.save(sess, self._model_path, model_name)
+        self._memory.save(self._model_path, model_name)
+
+    def _load_model(self, sess, model_name):
+        self._model.load(sess, self._model_path, model_name)
+        self._memory.load(self._model_path, model_name)
+
+    def _get_last_save_idx(self):
+        model_idxs = [0]
+        for f in listdir(self._model_path):
+            print(f)
+            if isfile(join(self._model_path, f)):
+                try:
+                    idx = int(f.split('.')[0])
+                    model_idxs.append(idx)
+                except ValueError:
+                    pass
+        return max(model_idxs)
