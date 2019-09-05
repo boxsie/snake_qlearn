@@ -20,10 +20,10 @@ class Model:
     def _define_model(self):
         self._states = tf.placeholder(shape=[None, self.num_states], dtype=tf.float32)
         self._q_s_a = tf.placeholder(shape=[None, self.num_actions], dtype=tf.float32)
-        # create a couple of fully connected hidden layers
-        fc1 = tf.layers.dense(self._states, 50, activation=tf.nn.relu)
-        fc2 = tf.layers.dense(fc1, 50, activation=tf.nn.relu)
-        self._logits = tf.layers.dense(fc2, self.num_actions)
+        fc1 = tf.layers.dense(self._states, 64, activation=tf.nn.relu)
+        fc2 = tf.layers.dense(fc1, 64, activation=tf.nn.relu)
+        fc3 = tf.layers.dense(fc2, 64, activation=tf.nn.relu)
+        self._logits = tf.layers.dense(fc3, self.num_actions)
         loss = tf.losses.mean_squared_error(self._q_s_a, self._logits)
         self._optimiser = tf.train.AdamOptimizer(learning_rate=self._learning_rate).minimize(loss)
         self.var_init = tf.global_variables_initializer()

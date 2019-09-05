@@ -3,7 +3,6 @@ import random
 import pygame
 import time
 
-from direction import Direction
 from enviroments.pong.paddle import Paddle
 from enviroments.pong.ball import Ball
 

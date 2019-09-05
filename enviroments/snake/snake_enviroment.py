@@ -7,7 +7,7 @@ from enviroments.snake.snake import Snake
 from enviroments.snake.apple import Apple
 
 class SnakeEnviroment:
-    def __init__(self, surface_size, offset, tile_count, tile_size, walls=True, observe_tiles=5, observe_dirs=8):
+    def __init__(self, surface_size, offset, tile_count, tile_size, walls=True, observe_tiles=8, observe_dirs=16):
         pygame.init()
         pygame.display.set_caption('QSnake')
 
@@ -32,15 +32,16 @@ class SnakeEnviroment:
         self._observe_dirs = observe_dirs
         self._observations = self.observe_area()
         self._latest_grid = self.build_grid()
+        self._prev_state = None
 
         self.state_count = len(self.get_state())
         self.action_count = len(Direction)
         self.score = 0
 
     def get_state(self):
-        return tuple([self._apple_angle, self._apple_distance, self._tail_end_angle] + list(map(lambda x: x[3], self._observations)))
+        #return tuple([self._apple_angle, self._apple_distance, self._tail_end_angle] + list(map(lambda x: x[3], self._observations)))
         #return tuple([self._apple_angle, self._apple_distance, self._tail_end_angle] + list(map(lambda x: x[3], self._observations)) + self._latest_grid)
-        #return tuple(self._latest_grid)
+        return tuple(self._latest_grid)
 
     def get_new_apple_pos(self):
         new_pos = self._get_random_apple_pos()
@@ -105,21 +106,6 @@ class SnakeEnviroment:
 
     def check_position_on_grid(self, pos):
         return pos[0] >= 0 and pos[1] >= 0 and pos[0] < self._tile_count and pos[1] < self._tile_count
-
-    def suggest_action(self):
-        actions = [0, 1, 2, 3]
-        random.shuffle(actions)
-        suggested_dir, suggested_val = random.randint(0, 4), -1
-
-        for i, a in enumerate(actions):
-            offset = i * (self._observe_dirs // 4)
-            val = self._observations[offset][3]
-
-            if val > suggested_val:
-                suggested_val = val
-                suggested_dir = a
-
-        return suggested_dir
 
     def reset(self):
         self._snake.reset()
@@ -199,7 +185,7 @@ class SnakeEnviroment:
         #     y_end = self._offset[1] + (o[1] * self._tile_size)
         #     val = o[3]
         #     if val != 0:
-        #         col = (254 - abs(254 * val), 0, 0) if val < 0 else (0, 254 -  abs(254 * val), 0)
+        #         col = (254 - abs(254 * val * 0.4), 0, 0) if val < 0 else (0, 254 -  abs(254 * val * 0.4), 0)
         #         pygame.draw.rect(self._display, col, (x_end, y_end, self._tile_size, self._tile_size))
 
         for x in range(self._tile_count):

@@ -10,7 +10,7 @@ from game_runner import GameRunner
 class Agent:
     def __init__(self, env, max_memory, batch_size):
         self._env = env
-        self._model = Model(env.state_count, env.action_count, batch_size=batch_size, learning_rate=1e-3)
+        self._model = Model(env.state_count * 2, env.action_count, batch_size=batch_size, learning_rate=1e-3)
         self._memory = Memory(max_memory=max_memory)
         self._render = False
         self._clock_tick = 15
@@ -24,7 +24,7 @@ class Agent:
     def train(self):
         with tf.Session() as sess:
             sess.run(self._model.var_init)
-            game_runner = GameRunner(sess, self._model, self._env, self._memory, max_eps=0.1, min_eps=1e-4, decay=1e-7, gamma=0.3)
+            game_runner = GameRunner(sess, self._model, self._env, self._memory, max_eps=0.2, min_eps=1e-1, decay=1e-4, gamma=0.5)
             game_runner.reset()
             i = 0
 
@@ -66,7 +66,7 @@ class Agent:
                     if self._render and self._focus_high_scores:
                         self._render = False
 
-                print(f'Epochs:{i + 1:,} | Current score:{gr_latest.current_score:,} | Highest score:{gr_latest.highest_score:,} | Average score:{gr_latest.average_score:,.2f} | Average reward:{gr_latest.average_reward:,.2f} | Current ε:{gr_latest.current_eps:,.5f}  ', end='\r')
+                print(f'Epochs:{i + 1:,} | Current score:{gr_latest.current_score:,} | Highest score:{gr_latest.highest_score:,} | Current time:{gr_latest.current_time:,.2f}s | Average score:{gr_latest.average_score:,.2f} | Average reward:{gr_latest.average_reward:,.2f} | Average time:{gr_latest.average_time:,.2f}s | Current ε:{gr_latest.current_eps:,.5f}  ', end='\r')
 
     def _save_model(self, sess, model_name):
         self._model.save(sess, self._model_path, model_name)
