@@ -75,7 +75,7 @@ class GameRunner:
     def _choose_action(self, state):
         rnd = random.random()
         if rnd < self._eps:
-            return random.randint(0, self._model.num_actions - 1)
+            return self._env.suggest_action()
         return np.argmax(self._model.predict_one(state, self._sess))
 
     def _replay(self):

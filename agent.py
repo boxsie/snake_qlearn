@@ -8,9 +8,15 @@ from memory import Memory
 from game_runner import GameRunner
 
 class Agent:
-    def __init__(self, env, max_memory, batch_size):
+    def __init__(self, env, max_memory, batch_size, tile_count):
         self._env = env
-        self._model = Model(env.state_count * 2, env.action_count, batch_size=batch_size, learning_rate=1e-3)
+        self._model = Model(
+            num_states=env.state_count*2,
+            num_actions=env.action_count,
+            batch_size=batch_size,
+            learning_rate=1e-3,
+            grid_size=tile_count,
+            frames_per_state=2)
         self._memory = Memory(max_memory=max_memory)
         self._render = False
         self._clock_tick = 15
@@ -24,7 +30,7 @@ class Agent:
     def train(self):
         with tf.Session() as sess:
             sess.run(self._model.var_init)
-            game_runner = GameRunner(sess, self._model, self._env, self._memory, max_eps=0.2, min_eps=1e-1, decay=1e-4, gamma=0.5)
+            game_runner = GameRunner(sess, self._model, self._env, self._memory, max_eps=1.0, min_eps=1e-1, decay=1e-4, gamma=0.97)
             game_runner.reset()
             i = 0
 

@@ -224,6 +224,21 @@ class SnakeEnviroment:
         # return -(dist_to_apple / self._tile_count) * 0.1
         return -0.01
 
+    def suggest_action(self):
+        actions = [0, 1, 2, 3]
+        random.shuffle(actions)
+        suggested_dir, suggested_val = random.randint(0, 4), -1
+
+        for i, a in enumerate(actions):
+            offset = i * (self._observe_dirs // 4)
+            val = self._observations[offset][3]
+
+            if val > suggested_val:
+                suggested_val = val
+                suggested_dir = a
+
+        return suggested_dir
+
     def handle_input(self, action):
         self._snake.set_velocity(Direction(action))
 
