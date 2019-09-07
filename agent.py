@@ -1,14 +1,13 @@
 import tensorflow as tf
 import pygame
+import os
 
-from os import listdir
-from os.path import isfile, join
 from snake_qlearn.model import Model
 from snake_qlearn.memory import Memory
 from snake_qlearn.game_runner import GameRunner
 
 class Agent:
-    def __init__(self, env, max_memory, batch_size, tile_count):
+    def __init__(self, env, max_memory, batch_size, tile_count, headless=False):
         self._env = env
         self._model = Model(
             num_states=env.state_count*2,
@@ -24,8 +23,10 @@ class Agent:
         self._clock_tick_max = 240
         self._model_path = 'models'
         self._last_model_idx = self._get_last_save_idx()
-        print(self._last_model_idx)
         self._focus_high_scores = False
+        self._headless = headless
+        if (headless):
+            os.environ["SDL_VIDEODRIVER"] = "dummy"
 
     def train(self):
         with tf.Session() as sess:
@@ -35,30 +36,30 @@ class Agent:
             i = 0
 
             while True:
-                events = pygame.event.get()
-                for event in events:
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
-                            pygame.quit()
-                            quit()
-                            break
-                        elif event.key == pygame.K_s:
-                            self._last_model_idx += 1
-                            self.save_model(sess, self._last_model_idx)
-                        elif event.key == pygame.K_l:
-                            self.load_model(sess, self._last_model_idx)
-                        elif event.key == pygame.K_d:
-                            self._render = not self._render
-                        elif event.key == pygame.K_PAGEUP:
-                            self._clock_tick += self._clock_tick_min
-                            self._clock_tick = self._clock_tick if self._clock_tick <= self._clock_tick_max else self._clock_tick_max
-                            print(f'\nNew clock tick: {self._clock_tick}')
-                        elif event.key == pygame.K_PAGEDOWN:
-                            self._clock_tick -= self._clock_tick_min
-                            self._clock_tick = self._clock_tick if self._clock_tick >= self._clock_tick_min else self._clock_tick_min
-                            print(f'\nNew clock tick: {self._clock_tick}')
-                        elif event.key == pygame.K_r:
-                            self._focus_high_scores = not self._focus_high_scores
+                if not self._headless:
+                    events = pygame.event.get()
+                    for event in events:
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_ESCAPE:
+                                self.exit()
+                                break
+                            elif event.key == pygame.K_s:
+                                self._last_model_idx += 1
+                                self.save_model(sess, self._last_model_idx)
+                            elif event.key == pygame.K_l:
+                                self.load_model(sess, self._last_model_idx)
+                            elif event.key == pygame.K_d:
+                                self._render = not self._render
+                            elif event.key == pygame.K_PAGEUP:
+                                self._clock_tick += self._clock_tick_min
+                                self._clock_tick = self._clock_tick if self._clock_tick <= self._clock_tick_max else self._clock_tick_max
+                                print(f'\nNew clock tick: {self._clock_tick}')
+                            elif event.key == pygame.K_PAGEDOWN:
+                                self._clock_tick -= self._clock_tick_min
+                                self._clock_tick = self._clock_tick if self._clock_tick >= self._clock_tick_min else self._clock_tick_min
+                                print(f'\nNew clock tick: {self._clock_tick}')
+                            elif event.key == pygame.K_r:
+                                self._focus_high_scores = not self._focus_high_scores
 
                 gr_latest = game_runner.update(self._render, self._clock_tick)
 
@@ -81,6 +82,10 @@ class Agent:
     def load_model(self, sess, model_name):
         self._model.load(sess, self._model_path, model_name)
         self._memory.load(self._model_path, model_name)
+
+    def exit():
+        pygame.quit()
+        quit()
 
     def _get_last_save_idx(self):
         model_idxs = [0]
