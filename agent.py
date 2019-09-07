@@ -2,16 +2,22 @@ import tensorflow as tf
 import pygame
 import os
 
-from snake_qlearn.model import Model
-from snake_qlearn.memory import Memory
-from snake_qlearn.game_runner import GameRunner
+from os import listdir
+from os.path import isfile, join
+from enviroments.snake.snake_enviroment import SnakeEnviroment
+from model import Model
+from memory import Memory
+from game_runner import GameRunner
 
 class Agent:
-    def __init__(self, env, max_memory, batch_size, tile_count, headless=False):
-        self._env = env
+    def __init__(self, max_memory, batch_size, tile_count, headless=False):
+        if (headless):
+            os.environ["SDL_VIDEODRIVER"] = "dummy"
+
+        self._env = SnakeEnviroment((680, 680), (20, 20), tile_count=16, tile_size=20)
         self._model = Model(
-            num_states=env.state_count*2,
-            num_actions=env.action_count,
+            num_states=self._env.state_count*2,
+            num_actions=self._env.action_count,
             batch_size=batch_size,
             learning_rate=1e-3,
             grid_size=tile_count,
@@ -25,8 +31,6 @@ class Agent:
         self._last_model_idx = self._get_last_save_idx()
         self._focus_high_scores = False
         self._headless = headless
-        if (headless):
-            os.environ["SDL_VIDEODRIVER"] = "dummy"
 
     def train(self):
         with tf.Session() as sess:
@@ -83,7 +87,7 @@ class Agent:
         self._model.load(sess, self._model_path, model_name)
         self._memory.load(self._model_path, model_name)
 
-    def exit():
+    def exit(self):
         pygame.quit()
         quit()
 

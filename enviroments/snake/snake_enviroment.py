@@ -2,9 +2,9 @@ import math
 import random
 import pygame
 
-from snake_qlearn.direction import Direction
-from snake_qlearn.enviroments.snake.snake import Snake
-from snake_qlearn.enviroments.snake.apple import Apple
+from direction import Direction
+from enviroments.snake.snake import Snake
+from enviroments.snake.apple import Apple
 
 class SnakeEnviroment:
     def __init__(self, surface_size, offset, tile_count, tile_size, walls=True, observe_tiles=8, observe_dirs=16):

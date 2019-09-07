@@ -1,7 +1,7 @@
 import math
 import pygame
 
-from snake_qlearn.direction import Direction
+from direction import Direction
 
 class Snake:
     def __init__(self, pos):
