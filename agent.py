@@ -3,9 +3,9 @@ import pygame
 
 from os import listdir
 from os.path import isfile, join
-from model import Model
-from memory import Memory
-from game_runner import GameRunner
+from snake_qlearn.model import Model
+from snake_qlearn.memory import Memory
+from snake_qlearn.game_runner import GameRunner
 
 class Agent:
     def __init__(self, env, max_memory, batch_size, tile_count):
@@ -44,9 +44,9 @@ class Agent:
                             break
                         elif event.key == pygame.K_s:
                             self._last_model_idx += 1
-                            self._save_model(sess, self._last_model_idx)
+                            self.save_model(sess, self._last_model_idx)
                         elif event.key == pygame.K_l:
-                            self._load_model(sess, self._last_model_idx)
+                            self.load_model(sess, self._last_model_idx)
                         elif event.key == pygame.K_d:
                             self._render = not self._render
                         elif event.key == pygame.K_PAGEUP:
@@ -74,11 +74,11 @@ class Agent:
 
                 print(f'Epochs:{i + 1:,} | Current score:{gr_latest.current_score:,} | Highest score:{gr_latest.highest_score:,} | Current time:{gr_latest.current_time:,.2f}s | Average score:{gr_latest.average_score:,.2f} | Average reward:{gr_latest.average_reward:,.2f} | Average time:{gr_latest.average_time:,.2f}s | Current ε:{gr_latest.current_eps:,.5f}  ', end='\r')
 
-    def _save_model(self, sess, model_name):
+    def save_model(self, sess, model_name):
         self._model.save(sess, self._model_path, model_name)
         self._memory.save(self._model_path, model_name)
 
-    def _load_model(self, sess, model_name):
+    def load_model(self, sess, model_name):
         self._model.load(sess, self._model_path, model_name)
         self._memory.load(self._model_path, model_name)
 

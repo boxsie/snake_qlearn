@@ -2,7 +2,7 @@ import math
 import random
 import pygame
 
-from direction import Direction
+from snake_qlearn.direction import Direction
 from enviroments.snake.snake import Snake
 from enviroments.snake.apple import Apple
 
